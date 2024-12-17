@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Таймер</title>
+    <link href="https://fonts.googleapis.com/css2?family=Victor+Mono&display=swap" rel="stylesheet"> 
+    <style>
+            * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: linear-gradient(to bottom right, #013220, #039861);
+            color: white;
+            font-family: 'Victor Mono', monospace;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+        h1 {
+            font-size: 2em;
+            margin-bottom: 20px;
+        }
+
+        .timer-inputs {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            align-items: center;
+            font-size: 2em;
+        }
+
+        input[type="number"] {
+            width: 3ch;
+            text-align: center;
+            font-size: 2em;
+            padding: 5px;
+            border: none;
+            border-bottom: 2px solid white;
+            background: none;
+            color: white;
+            outline: none;
+        }
+
+        input[type="number"]::-webkit-inner-spin-button,
+        input[type="number"]::-webkit-outer-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+            font-family: 'Victor Mono', monospace;
+        }
+
+        #startButton {
+            margin-top: 20px;
+            padding: 14px;
+            font-size: 18px;
+            font-family: 'Victor Mono', monospace;
+            background-color: #fff;
+            color: #004d40;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            width: 30%;
+        }
+
+
+        #startButton:hover {
+            background-color: #ebeaea;
+        }
+    </style>
+</head>
+<body>
+    <h1>Выделите время на задачку</h1>
+    <div class="timer-inputs">
+        <input type="number" id="hours" placeholder="XX" min="0" max="99">
+        <span>:</span>
+        <input type="number" id="minutes" placeholder="XX" min="0" max="59">
+        <span>:</span>
+        <input type="number" id="seconds" placeholder="XX" min="0" max="59">
+    </div>
+    <button id="startButton">Запустить</button>
+
+    <script>
+        const hoursInput = document.getElementById('hours');
+        const minutesInput = document.getElementById('minutes');
+        const secondsInput = document.getElementById('seconds');
+        const startButton = document.getElementById('startButton');
+        let timer;
+
+        // Функция для блокировки ввода нецифровых символов
+        function allowOnlyNumbers(event) {
+            const input = event.target;
+            const value = input.value;
+
+            // Заменяем все символы, кроме цифр, на пустую строку
+            input.value = value.replace(/[^0-9]/g, '');
+        }
+
+        // Добавим обработчик события input для каждого поля
+        hoursInput.addEventListener('input', allowOnlyNumbers);
+        minutesInput.addEventListener('input', allowOnlyNumbers);
+        secondsInput.addEventListener('input', allowOnlyNumbers);
+
+        // Функция для обновления времени на основе ввода
+        function parseTime() {
+            const hours = parseInt(hoursInput.value) || 0;
+            const minutes = parseInt(minutesInput.value) || 0;
+            const seconds = parseInt(secondsInput.value) || 0;
+            return { hours, minutes, seconds };
+        }
+
+        function formatTime(hours, minutes, seconds) {
+            return {
+                hrs: hours.toString().padStart(2, '0'),
+                mins: minutes.toString().padStart(2, '0'),
+                secs: seconds.toString().padStart(2, '0'),
+            };
+        }
+
+        // Функция для изменения фона на красный на несколько секунд
+        function showRedBackground() {
+            document.body.style.background = '#8b0202'; // Рубиновый цвет
+            setTimeout(() => {
+                document.body.style.background = 'linear-gradient(to bottom right, #013220, #039861)'; // Восстановление исходного фона
+            }, 1000); // 2 секунды
+        }
+
+        // Обработчик события запуска таймера
+        startButton.addEventListener('click', () => {
+        if (timer) {
+            clearInterval(timer);
+        }
+
+        const { hours, minutes, seconds } = parseTime();
+        let totalSeconds = hours * 3600 + minutes * 60 + seconds;
+
+        if (totalSeconds <= 0) {
+            alert('Пожалуйста, введите корректное время.');
+            return;
+        }
+
+        // Блокируем поля на время работы таймера
+        hoursInput.readOnly = true;
+        minutesInput.readOnly = true;
+        secondsInput.readOnly = true;
+
+        timer = setInterval(() => {
+            if (totalSeconds > 0) {
+                totalSeconds--;
+                const { hrs, mins, secs } = formatTime(Math.floor(totalSeconds / 3600), Math.floor((totalSeconds % 3600) / 60), totalSeconds % 60);
+                hoursInput.value = hrs;
+                minutesInput.value = mins;
+                secondsInput.value = secs;
+            } else {
+                clearInterval(timer);
+                showRedBackground(); // Изменение фона на красный
+                hoursInput.value = "XX"; // Сбросим значение на "XX"
+                minutesInput.value = "XX"; // Сбросим значение на "XX"
+                secondsInput.value = "XX"; // Сбросим значение на "XX"
+                hoursInput.readOnly = false;
+                minutesInput.readOnly = false;
+                secondsInput.readOnly = false;
+            }
+            }, 1000);
+        });
+
+        // Обработчик для установки начального значения
+        function initializeInput(input) {
+            if (input.value === "") {
+                input.value = "XX";
+            }
+        }
+
+        // Устанавливаем начальные значения
+        hoursInput.addEventListener('focus', () => {
+            if (hoursInput.value === "XX") {
+                hoursInput.value = "";
+            }
+        });
+
+        minutesInput.addEventListener('focus', () => {
+            if (minutesInput.value === "XX") {
+                minutesInput.value = "";
+            }
+        });
+
+        secondsInput.addEventListener('focus', () => {
+            if (secondsInput.value === "XX") {
+                secondsInput.value = "";
+            }
+        });
+
+        // При потере фокуса восстанавливаем "XX", если поле пустое
+        hoursInput.addEventListener('blur', () => {
+            if (hoursInput.value === "") {
+                hoursInput.value = "XX";
+            }
+        });
+
+        minutesInput.addEventListener('blur', () => {
+            if (minutesInput.value === "") {
+                minutesInput.value = "XX";
+            }
+        });
+
+        secondsInput.addEventListener('blur', () => {
+            if (secondsInput.value === "") {
+                secondsInput.value = "XX";
+            }
+        });
+
+        // Убедимся, что ввод не превышает 2 символа
+        hoursInput.addEventListener('input', () => {
+            if (hoursInput.value.length > 2) {
+                hoursInput.value = hoursInput.value.slice(0, 2);
+            }
+        });
+
+        minutesInput.addEventListener('input', () => {
+            if (minutesInput.value.length > 2) {
+                minutesInput.value = minutesInput.value.slice(0, 2);
+            }
+        });
+
+        secondsInput.addEventListener('input', () => {
+            if (secondsInput.value.length > 2) {
+                secondsInput.value = secondsInput.value.slice(0, 2);
+            }
+        });
+    </script>
+</body>
+</html>

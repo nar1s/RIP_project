@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="ru"
+      xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Календарь</title>
+    <link href="https://fonts.googleapis.com/css2?family=Victor+Mono&display=swap" rel="stylesheet"> <!-- Подключение шрифта -->
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Victor Mono', monospace; /* Применение шрифта Victor Mono */
+            background-color: white;
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
+            position: relative;
+            flex-grow: 1;
+        }
+
+        header {
+            background-color: transparent;
+            color: #236941;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 15px;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 100;
+            font-size: 22px;
+        }
+
+        .menu-icon {
+            position: absolute;
+            left: 10px;
+            font-size: 30px;
+            cursor: pointer;
+        }
+
+        .month-navigation {
+            display: flex;
+            align-items: center;
+        }
+
+        .current-month {
+            margin: 0 10px;
+            font-size: 24px;
+            font-weight: bold;
+            color: #236941;
+            text-align: center;
+            width: 200px;
+        }
+
+        .calendar {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 1px;
+            grid-auto-rows: 90px;
+            background-color: white;
+            margin-top: 80px;
+            padding: 10px;
+            flex-grow: 1;
+            overflow: auto;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        .calendar div {
+            background-color: #236941;
+            color: white;
+            text-align: center;
+            padding: 15px;
+            cursor: pointer;
+            position: relative;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: background-color 0.3s;
+            border: 1px solid #ddd;
+        }
+
+        .calendar .today {
+            background-color: #013220;
+            color: white;
+        }
+
+        .calendar .outside-month {
+            background-color: #D9D9D9;
+            color: #777;
+        }
+
+        .calendar .task-count {
+            position: absolute;
+            bottom: 5px;
+            right: 5px;
+            font-size: 12px;
+            color: #fff;
+            background-color: #2d5f2e;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            text-align: center;
+        }
+
+        .calendar div:hover {
+            background-color: #1a5a3a;
+            color: white;
+        }
+
+        .menu {
+            position: fixed;
+            top: 0;
+            left: -400px;
+            width: 400px;
+            height: 100%;
+            background-color: white;
+            color: #236941;
+            transition: left 0.3s ease;
+            padding-top: 60px;
+            z-index: 200;
+            box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+            overflow-y: auto;
+        }
+
+        .menu.open {
+            left: 0;
+        }
+
+        .menu ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .menu ul li {
+            padding: 20px;
+            text-align: center;
+        }
+
+        .menu ul li a {
+            color: #236941;
+            text-decoration: none;
+            font-size: 18px;
+        }
+
+        .task-details {
+            position: fixed;
+            top: 0;
+            left: -400px;
+            width: 400px;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: left 0.3s ease;
+            z-index: 300;
+        }
+
+        .task-details.open {
+            left: 0;
+        }
+
+        .task-details .task-content {
+            background-color: white;
+            padding: 20px;
+            width: 100%;
+            height: 100%;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .task-details button {
+            margin-top: 20px;
+        }
+
+        button {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 20px;
+            cursor: pointer;
+        }
+
+        .overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7); /* полупрозрачный черный фон */
+            z-index: 50;
+        }
+
+        .overlay.open {
+            display: block;
+        }
+
+        .main-content {
+            flex-grow: 1;
+            padding: 10px;
+            overflow: auto;
+            transition: opacity 0.3s ease;
+        }
+
+        .main-content.dimmed {
+            opacity: 0.5;
+        }
+
+    </style>
+</head>
+<body>
+<div class="overlay" onclick="closeMenuAndDetails()"></div>
+<div class="container">
+    <!-- Шапка -->
+    <header>
+        <div class="menu-icon" onclick="toggleMenu()">≡</div>
+        <div class="month-navigation">
+            <button class="prev-month" onclick="changeMonth(-1)" style="color: #236941;">◀</button>
+            <span class="current-month"></span>
+            <button class="next-month" onclick="changeMonth(1)" style="color: #236941;">▶</button>
+        </div>
+    </header>
+
+    <!-- Основной контент (календарь) -->
+    <div class="main-content">
+        <div class="calendar"></div>
+    </div>
+
+    <!-- Боковое меню -->
+    <div class="menu">
+        <ul>
+            <li><a href="/view/profile">Профиль</a></li>
+            <li><a href="/view/calendar">Календарь</a></li>
+            <li><a href="/view/my_task">Список задач</a></li>
+            <li><a href="/view/add_task">Добавить задачу</a></li>
+            <li><a href="/view/timer">Выделить время</a></li>
+            <li><a href="/view/logout">Выход</a></li>
+        </ul>
+    </div>
+
+    <!-- Окно с задачами -->
+    <div class="task-details">
+        <div class="task-content">
+            <h3>Задачи на день</h3>
+            <div id="task-description"></div>
+            <button onclick="closeTaskDetails()">Закрыть</button>
+        </div>
+    </div>
+</div>
+
+<script th:inline="javascript">
+    let currentDate = new Date();
+    let tasks = {};
+    let deals = /*[[${deals}]]*/ {};
+    deals = JSON.parse(deals);
+    function generateCalendar() {
+        const calendar = document.querySelector('.calendar');
+        const currentMonthElement = document.querySelector('.current-month');
+        const monthNames = ["Январь", "Февраль", "Март", "Апрель", "Май", "Июнь", "Июль", "Август", "Сентябрь", "Октябрь", "Ноябрь", "Декабрь"];
+        const currentMonth = currentDate.getMonth();
+        currentMonthElement.textContent = `${monthNames[currentMonth]} ${currentDate.getFullYear()}`;
+
+        const firstDayOfMonth = new Date(currentDate.getFullYear(), currentMonth, 1);
+        const lastDayOfMonth = new Date(currentDate.getFullYear(), currentMonth + 1, 0);
+        const daysInMonth = lastDayOfMonth.getDate();
+        let firstDay = firstDayOfMonth.getDay();
+        firstDay = firstDay === 0 ? 7 : firstDay;
+
+        calendar.innerHTML = '';
+
+        for (let i = 0; i < firstDay - 1; i++) {
+            const emptyDiv = document.createElement('div');
+            calendar.appendChild(emptyDiv);
+        }
+
+        for (let i = 1; i <= daysInMonth; i++) {
+            const dayDiv = document.createElement('div');
+            const dayDate = new Date(currentDate.getFullYear(), currentMonth, i);
+            const formattedYear = dayDate.getFullYear().toString();
+            const formattedMonth = dayDate.getFullYear() + 1 < 10 ? "0".concat((dayDate.getMonth() + 1).toString()) : (dayDate.getMonth() + 1).toString();
+            const formattedDay = i < 10 ? "0".concat(i.toString()) : i.toString();
+            const formattedDate = formattedYear + "-" + formattedMonth + "-" + formattedDay;
+            const taskCount = deals[formattedDate] ? deals[formattedDate].length : 0;
+            console.log("Formatted date: '" + formattedDate + "' Task Count: " + taskCount);
+            if (dayDate.toDateString() === new Date().toDateString()) {
+                dayDiv.classList.add('today');
+            }
+
+            if (currentDate.getMonth() !== dayDate.getMonth()) {
+                dayDiv.classList.add('outside-month');
+            }
+
+            dayDiv.innerHTML = `${i}<div class="task-count">${taskCount}</div>`;
+            dayDiv.dataset.date = dayDate.toDateString();
+            dayDiv.onclick = () => openTaskDetails(dayDate, deals[formattedDate] ? deals[formattedDate] : {});
+
+            calendar.appendChild(dayDiv);
+        }
+    }
+
+    function toggleMenu() {
+        document.querySelector('.menu').classList.toggle('open');
+        document.querySelector('.overlay').classList.toggle('open');
+        document.querySelector('.main-content').classList.toggle('dimmed');
+    }
+
+    function closeMenuAndDetails() {
+        document.querySelector('.menu').classList.remove('open');
+        document.querySelector('.task-details').classList.remove('open');
+        document.querySelector('.overlay').classList.remove('open');
+        document.querySelector('.main-content').classList.remove('dimmed');
+    }
+
+    function openTaskDetails(date, deals) {
+        const taskDetails = document.querySelector('.task-details');
+        const taskDescription = document.querySelector('#task-description');
+        taskDetails.classList.add('open');
+        document.querySelector('.overlay').classList.add('open');
+        document.querySelector('.main-content').classList.add('dimmed');
+
+        taskDescription.innerHTML = `<div class="task-date">Задачи на ${date.toDateString()}</div>`;
+
+        if (deals && deals.length > 0) {
+            let taskHTML = ``
+
+            for (const deal of deals) {
+                taskHTML += `
+                    <br>
+                    <div class="deal">
+                        <h3>Название: ${deal["name"] || 'Без названия'}</h3>
+                        <p>Описание: ${deal["description"] || 'Описание отсутствует'}</p>
+                        <p>Выделенное время: ${deal["executionDays"] || 'Выделенное время отсутвтует'}</p>
+                    </div>
+                `
+            }
+            taskDescription.innerHTML += taskHTML
+        } else {
+            taskDescription.innerHTML += `<br>
+                                          <p>Нет дел на выбранную дату.</p>`
+        }
+    }
+
+    function closeTaskDetails() {
+        const taskDetails = document.querySelector('.task-details');
+        taskDetails.classList.remove('open');
+        document.querySelector('.overlay').classList.remove('open');
+        document.querySelector('.main-content').classList.remove('dimmed');
+    }
+
+    function changeMonth(direction) {
+        currentDate.setMonth(currentDate.getMonth() + direction);
+        generateCalendar();
+    }
+
+    generateCalendar();
+</script>
+</body>
+</html>

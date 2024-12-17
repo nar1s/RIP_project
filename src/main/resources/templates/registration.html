@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="ru"
+      xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Taskly - Регистрация</title>
+    <link href="https://fonts.googleapis.com/css2?family=Victor+Mono&display=swap" rel="stylesheet">
+    <style>
+        body {
+            margin: 0;
+            font-family: 'Victor Mono', monospace; /* Шрифт Victor Mono */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #ffffff; /* Белый фон страницы */
+        }
+
+        .container {
+            display: flex;
+            width: 100%;
+            height: 100%;
+            max-width: 1500px; /* Максимальная ширина для адаптивности */
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        /* Левая часть с формой */
+        .form-section {
+            width: 50%;
+            padding: 40px;
+            background-color: white;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center; /* Центрирование формы по вертикали и горизонтали */
+            box-sizing: border-box;
+        }
+
+        /* Заголовок с картинкой */
+        .form-section h1 {
+            font-size: 32px;
+            margin-bottom: 20px;
+            color: #2d5f2e;
+            text-align: center;
+            background: url('/image/name.png') no-repeat center center; /* Путь к картинке с логотипом */
+            background-size: contain;
+            height: 100px; /* Высота логотипа */
+            width: 100%; /* Ширина на 100% */
+        }
+
+        .form-section h2 {
+            font-size: 32px;
+            margin-bottom: 20px;
+            color: #2d5f2e;
+            text-align: center;
+        }
+
+        /* Поля ввода */
+        .form-section input {
+            margin-top: 20px;
+            padding: 12px; /* Увеличим паддинг для полей */
+            font-size: 16px;
+            border: 1px solid #013220; /* Темный бордер, как у кнопки */
+            border-radius: 5px;
+            width: 80%; /* Окружает элементы внутри контейнера */
+        }
+
+        .form-section input:focus {
+            border-color: #039861;
+            outline: none;
+        }
+
+        /* Кнопка */
+        .form-section button {
+            margin-top: 20px;
+            padding: 14px;
+            font-size: 18px;
+            color: #fff;
+            background: linear-gradient(to bottom right, #013220, #039861); /* Диагональный градиент */
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            width: 80%;
+        }
+
+        .form-section button:hover {
+            background: #245123;
+        }
+
+        /* Ссылки */
+        .form-section a {
+            color: #2d5f2e;
+            text-decoration: none;
+            margin-top: 20px; /* Увеличили отступ между ссылками */
+            display: inline-block;
+            text-align: center;
+        }
+
+        .form-section a:hover {
+            text-decoration: underline;
+        }
+
+        /* Правая часть с картинкой */
+        .image-section {
+            width: 50%;
+            background-size: cover;
+            background-position: center;
+            height: 100%; /* Заполняет всю правую часть */
+        }
+
+        /* Разные изображения для страниц входа и регистрации */
+        .login-container .image-section {
+            background: url('/image/name.png') no-repeat center center;
+        }
+
+        .register-container .image-section {
+            background: url('/image/image2.png') no-repeat center center;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container register-container">
+    <div class="form-section">
+        <h1></h1>
+        <h2>Присоединяйтесь к нам</h2>
+
+        <!-- Форма регистрации -->
+        <form action="/view/registration" method="post" th:object="${user}">
+            <input type="text" name="username" placeholder="Имя пользователя" th:field="*{username}" required>
+            <input type="email" name="email" placeholder="Email" th:field="*{email}" required>
+            <input type="password" name="password" placeholder="Пароль" th:field="*{password}" required>
+            <input type="password" name="confirm_password" placeholder="Подтвердите пароль" th:field="*{acceptPassword}" required>
+            <div th:if="${error != null}" class="error-message">
+                <span th:text="${error}" style="color: red"></span>
+            </div>
+            <!-- Кнопка отправки формы -->
+            <button type="submit">Зарегистрироваться</button>
+
+            <!-- Ссылка для перехода к странице входа -->
+            <a href="/view/login">Уже зарегистрированы? Войдите!</a>
+        </form>
+    </div>
+
+    <div class="image-section"></div>
+</div>
+
+</body>
+</html>

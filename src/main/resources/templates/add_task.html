@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="ru"
+      xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Add task</title>
+  <link rel="stylesheet" href="styles.css">
+  <link href="https://fonts.googleapis.com/css2?family=Victor+Mono&display=swap" rel="stylesheet"> 
+  <style>
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+    }
+
+    body, html {
+        height: 100%;
+        font-family: 'Victor Mono', monospace;
+    }
+
+    .container {
+        display: flex;
+        height: 100%;
+    }
+
+    .left, .right {
+        flex: 1;
+    }
+
+    .left {
+        width: 50%;
+        padding: 40px;
+        background-color: white;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        box-sizing: border-box;
+    }
+
+
+    .header {
+        font-size: 60px;
+        margin-bottom: 20px;
+        color: #000;
+    }
+
+    .description {
+        font-size: 32px;
+        margin-bottom: 20px;
+        color: #000;
+        text-align: center;
+    }
+
+    .input-container {
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+        width: 80%;
+    }
+
+    .input-container input {
+        padding: 12px;
+        font-size: 16px;
+        border: 2px solid #d0d0d0;
+        border-radius: 10px;
+        color: #333;
+        background-color: #f9f9f9;
+        transition: border 0.3s ease;
+    }
+
+    .input-container input::placeholder {
+        color: #aaaaaa;
+    }
+
+    .input-container input:focus {
+        border: 2px solid #006400;
+        outline: none;
+    }
+
+    .save-button {
+        margin-top: 20px;
+        padding: 14px;
+        font-size: 18px;
+        color: #fff;
+        background: linear-gradient(to bottom right, #013220, #039861);
+        border: none;
+        border-radius: 50px;
+        cursor: pointer;
+        width: 80%;
+    }
+
+    .save-button:hover {
+        background: #245123;
+    }
+
+        .right {
+        background: url('/image/man.png') no-repeat center center;
+        background-size: cover;
+    }
+
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="left">
+      <div class="header">Добавьте задачку</div>
+      <div class="description">Расскажите нам о своих планах,<br> а мы поможем не забыть</div>
+      <form th:action="@{/view/add_task}" th:method="POST" th:object="${task}">
+        <div class="input-container">
+          <input type="text" placeholder="Введите название задачи" th:field="*{name}" required>
+          <input type="text" placeholder="Добавьте описание" th:field="*{description}" required>
+          <input type="text" placeholder="Введите дату формат yyyy-MM-dd" th:field="*{date}" required>
+          <input type="text" placeholder="Введите время HH:mm:ss" th:field="*{time}" required>
+        </div>
+        <div th:if="${error != null}">
+          <p style="color: red" th:text="${error}"></p>
+        </div>
+        <button type="submit" class="save-button">Сохранить задачку</button>
+      </form>
+    </div>
+    <div class="right"></div>
+  </div>
+</body>
+</html>
