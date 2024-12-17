@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="ru"
+      xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Список задач</title>
+  <link href="https://fonts.googleapis.com/css2?family=Victor+Mono&display=swap" rel="stylesheet"> 
+  <link rel="stylesheet" href="styles.css">
+  <style>
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+    }
+
+    body, html {
+        font-family: 'Victor Mono', monospace;
+        height: 100%;
+        background-color: #f4f4f4;
+    }
+
+    .task-container {
+        display: flex;
+        height: 100%;
+    }
+
+    .task-column {
+        flex: 1;
+        padding: 20px;
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .today {
+        background-color: #ffffff;
+        border-right: 1px solid #e0e0e0;
+    }
+
+    .tomorrow {
+        background-color: #0f3d2e;
+        color: #ffffff;
+    }
+
+    h2 {
+        font-size: 40px;
+        font-weight: bold;
+        margin-bottom: 20px;
+    }
+
+    .task-item {
+        display: flex;
+        align-items: center;
+        padding: 15px;
+        background-color: #f9f9f9;
+        border-radius: 10px;
+        gap: 15px;
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+        width: 90%;
+    }
+
+    .today .task-item {
+        background-color: #efeeee;
+    }
+
+    .tomorrow .task-item {
+       background-color: #013220;
+    }
+
+    .task-item:hover {
+        transform: translateY(-3px);
+        box-shadow: 0px 5px 15px rgba(0, 0, 0, 0.1);
+    }
+
+    .task-details {
+      flex: 1;
+    }
+
+    .task-details strong {
+        display: block;
+        font-size: 16px;
+        margin-bottom: 5px;
+    }
+
+    .task-details p {
+        font-size: 14px;
+        margin-bottom: 5px;
+        color: #666666;
+    }
+
+    .task-details span {
+        font-size: 12px;
+        color: #999999;
+    }
+
+    .tomorrow .task-details p,
+    .tomorrow .task-details span {
+        color: #cccccc;
+    }
+
+    .task-action {
+        width: 20px;
+        height: 20px;
+        background-color: #d9d9d9;
+        border-radius: 50%;
+        flex-shrink: 0;
+    }
+
+    .tomorrow .task-action {
+        background-color: #6b8777;
+    }
+
+  </style>
+</head>
+<body>
+  <div class="task-container">
+    <div class="task-column today">
+      <h2 th:text="'Сегодня ' + ${today}">Сегодня, дд.мм</h2>
+      <div th:if="${!todayDeals.isEmpty()}">
+        <div th:each="todayDeal : ${todayDeals}">
+          <div class="task-item">
+            <div class="task-details">
+              <strong th:text="'Название: ' + ${todayDeal.name}">Название</strong>
+              <p th:text="'Описание: ' + ${todayDeal.description}">Описание</p>
+              <span th:text="'Выделенное время: ' + ${todayDeal.executionDays} + ' дней.'">Выделенное время</span>
+            </div>
+            <div class="task-action"></div>
+            <div class="task-action"></div>
+          </div>
+        </div>
+      </div>
+      <div th:if="${todayDeals.isEmpty()}">
+        <p>Дел на сегодня нет</p>
+      </div>
+    </div>
+    <div class="task-column tomorrow">
+      <h2 th:text="'Завтра ' + ${tomorrow}">Завтра, дд.мм</h2>
+      <div th:if="${!tomorrowDeals.isEmpty()}">
+        <div th:each="tomorrowDeal : ${tomorrowDeals}">
+          <div class="task-item">
+            <div class="task-details">
+              <strong th:text="'Название: ' + ${tomorrowDeal.name}">Название</strong>
+              <p th:text="'Описание: ' + ${tomorrowDeal.description}">Описание</p>
+              <span th:text="'Выделенное время: ' + ${tomorrowDeal.executionDays} + ' дней.'">Выделенное время</span>
+            </div>
+            <div class="task-action"></div>
+            <div class="task-action"></div>
+          </div>
+        </div>
+      </div>
+      <div th:if="${tomorrowDeals.isEmpty()}">
+        <p>Дел на завтра нет</p>
+      </div>
+    </div>
+  </div>
+</body>
+</html>
